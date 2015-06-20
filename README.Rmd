@@ -1,0 +1,107 @@
+---
+title: 'Exercise Prediction with Random Forests'
+author: "Daniel Maurath"
+date: "June 16, 2015"
+output: html_document
+---
+
+###Executive Summary
+The goal of this project for the Coursera Practical Machine Learning course was to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict the manner in which they did the exercise. 
+
+A random forests approach was used and resulted in a model with an prediction accuracy of: `0.969`
+
+Expected out of sample error is: `.031`
+
+####Data 
+The data was provided by researchers at  Pontifical Catholic University of Rio de Janeiro, Informatics Department and School of Computing and Communications, Lancaster University, UK. 
+
+See the CODEBOOK file for complete details on the dataset. 
+
+**Citation**
+*Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6
+http://groupware.les.inf.puc-rio.br/work.jsf?p1=10335*
+
+###Required Libraries
+```{r}
+library(caret)
+library(doParallel)
+library(ggplot2)
+```
+
+Allow R to use all four cores. 
+```{r}
+cl <- makeCluster(detectCores())
+registerDoParallel(cl)
+```
+
+###Data Cleaning
+The dataset contained some columns with many missing values. These columns were summaries for time windows, so I discarded them. I also removed "bookkeeping" data in the first 7 columns. These columns were unique to this dataset and would not be useful when trying to make predictions out of sample.
+
+```{r}
+pml <- read.csv('pml-training.csv', na.strings=c("#DIV/0!", ""))
+
+cs <- colSums(is.na(pml))
+cs <- data.frame(col = names(cs), countNA = cs)
+cs <- cs[order(-cs$countNA),]
+row.names(cs) <- 1:nrow(cs)
+head(cs,33)
+kp <- as.character(cs[cs$countNA <= 0, "col"])
+pml <- pml[kp]
+
+pml <- pml[,-c(1:7)]
+```
+
+###Train-Test
+To cross validate, I split the dataset into 60% train and 40% test. I leave the testing set alone for now, and build my features.
+```{r}
+set.seed(1987)
+inTrain <- createDataPartition(y=pml$classe, p=0.60, list=FALSE)
+training <- pml[inTrain,]
+testing <- pml[-inTrain,]
+```
+
+###Feature Building
+To reduce noise in the model, I remove predictors that have near zero variance using the nearZeroVar function in caret. I then remove any columns still in my testing set that are not in my training set. 
+```{r}
+nzv <- nearZeroVar(training, saveMetrics=TRUE)
+training <- training[,nzv$nzv==FALSE]
+nzv <- nearZeroVar(testing,saveMetrics=TRUE)
+testing <- testing[,nzv$nzv==FALSE]
+
+testing <- testing[colnames(training)]
+````
+
+Another way to reduce noise, is to use Principal Components Analysis (PCA). This approach finds the best weighting and combination of correlated features. Here you can see many predictors are correlated, meaning this is a good case for PCA. I will use PCA when I train my model.
+```{r}
+M <- abs(cor(training[,-c(53)]))
+diag(M) <- 0
+which(M > 0.8, arr.ind=T)
+```
+
+###Random Forests Model
+I chose Random Forests for my model because of its accuracy. As noted in Week 3's Random Forest's lecture, slide 10, "Random Forests are usually one of the top two performing algorithms." 
+
+Admittedly, there are shortcomings to this model, but I addressed each. Random Forests is slow, so I used the "doParalell" package to take advantage of my computer's 4 cores. Interpretability was not required for this assignment, only predictive accuracy. I used 3-fold cross-validation to address overfitting as was suggested in lecture. 
+
+I trained the model on the training dataset using PCA to weigh and combine predictors, and a three-fold cross validation. Then tested it using the testing dataset, and generated a confusion matrix to assess the model.
+
+```{r}
+modelfitRF <- train(training$classe~., method = "rf", preProcess=c("pca"), trControl = trainControl(method = "cv", number=10), data=training)
+cm <- confusionMatrix(testing$classe, predict(modelfitRF, testing))
+cm
+```
+The model has a predictive accuracy of `0.969` and kappa of `0.961`
+
+Out of sample error is 1 - 0.969 = `.031`
+
+A more intuitive way to visualize model fit is by plotting the confusion matrix. Here you can see that the model is most accurate for Class A, and least for Class C. 
+```{r}
+cm_plot <- as.data.frame(cm[2])
+names(cm_plot) <- c("Predicted", "Actual", "Freq")
+plot <- ggplot(cm_plot)
+plot + geom_tile(aes(x=Actual, y=Predicted, fill=Freq)) + scale_x_discrete(name="Actual Class") + scale_y_discrete(name="Predicted Class") + scale_fill_gradient() + labs(fill="Frequency")
+```
+
+That concludes this analysis. 
+
+

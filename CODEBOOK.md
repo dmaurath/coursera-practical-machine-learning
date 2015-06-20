@@ -1,155 +1,67 @@
-###SUMMARY
-- 180 rows (30 Subjects X 6 Activities)
-- 68 columns (Subject, Activity, 66 feature means) 
-- Each row represents one observation per activity for 66 feature means
-- For the features only the variables with *-mean* or *-std* from the raw data were used in this analysis because I was only interested in the mean and standard deviation of the feature values, and not other various means or standard deviations.
+###SUMMARY FOR TRAINING SET
+- 11776 rows
+- 53 columns 
+- Each row represents a different sensor reading
+- Original dataset: http://groupware.les.inf.puc-rio.br/har
+
 
 ###VARIABLES AND UNITS
-- First column is "Subject", and is labeled 1 to 30. Identifies the subject who performed the activity for each window sample.
-- Second column is "Activity", and can take the following 6 values
-	1. LAYING
-	2. SITTING
-	3. STANDING
-	4. WALKING
-	5. WALKING DOWNSTAIRS
-	6. WALKING UPSTAIRS
-- Columns 3 to 68 are means of each feature's means from the raw data (i.e. the columns in original dataset containing *mean()* and *std()*). For example, *tBodyAcc-mean()-X* is the average of all *tBodyAcc-mean()-X* means for a given activity. They have been normalized to a number in the range [0-1]
+- Last column, 53  "classe", and is a factor A-E and the outcome the model wanted to predict. The factors map to the manner an exercise was done.  
+- Columns 1 to 52 are the remaining feature columns used to train the model after the original dataset was cleaned up. 
 
 ###COLUMNS
-68 Columns
-
-1.  Subject
-
-2.  Activity
-
-3.  tBodyAcc-mean()-X
-
-4.  tBodyAcc-mean()-Y
-
-5.  tBodyAcc-mean()-Z
-
-6.  tBodyAcc-std()-X
-
-7.  tBodyAcc-std()-Y
-
-8.  tBodyAcc-std()-Z
-
-9.  tGravityAcc-mean()-X
-
-10.  tGravityAcc-mean()-Y
-
-11.  tGravityAcc-mean()-Z
-
-12.  tGravityAcc-std()-X
-
-13.  tGravityAcc-std()-Y
-
-14.  tGravityAcc-std()-Z
-
-15.  tBodyAccJerk-mean()-X
-
-16.  tBodyAccJerk-mean()-Y
-
-17.  tBodyAccJerk-mean()-Z
-
-18.  tBodyAccJerk-std()-X
-
-19.  tBodyAccJerk-std()-Y
-
-20.  tBodyAccJerk-std()-Z
-
-21.  tBodyGyro-mean()-X
-
-22.  tBodyGyro-mean()-Y
-
-23.  tBodyGyro-mean()-Z
-
-24.  tBodyGyro-std()-X
-
-25.  tBodyGyro-std()-Y
-
-26.  tBodyGyro-std()-Z
-
-27.  tBodyGyroJerk-mean()-X
-
-28.  tBodyGyroJerk-mean()-Y
-
-29.  tBodyGyroJerk-mean()-Z
-
-30.  tBodyGyroJerk-std()-X
-
-31.  tBodyGyroJerk-std()-Y
-
-32.  tBodyGyroJerk-std()-Z
-
-33.  tBodyAccMag-mean()
-
-34.  tBodyAccMag-std()
-
-35.  tGravityAccMag-mean()
-
-36.  tGravityAccMag-std()
-
-37.  tBodyAccJerkMag-mean()
-
-38.  tBodyAccJerkMag-std()
-
-39.  tBodyGyroMag-mean()
-
-40.  tBodyGyroMag-std()
-
-41.  tBodyGyroJerkMag-mean()
-
-42.  tBodyGyroJerkMag-std()
-
-43.  fBodyAcc-mean()-X
-
-44.  fBodyAcc-mean()-Y
-
-45.  fBodyAcc-mean()-Z
-
-46.  fBodyAcc-std()-X
-
-47.  fBodyAcc-std()-Y
-
-48.  fBodyAcc-std()-Z
-
-49.  fBodyAccJerk-mean()-X
-
-50.  fBodyAccJerk-mean()-Y
-
-51.  fBodyAccJerk-mean()-Z
-
-52.  fBodyAccJerk-std()-X
-
-53.  fBodyAccJerk-std()-Y
-
-54.  fBodyAccJerk-std()-Z
-
-55.  fBodyGyro-mean()-X
-
-56.  fBodyGyro-mean()-Y
-
-57.  fBodyGyro-mean()-Z
-
-58.  fBodyGyro-std()-X
-
-59.  fBodyGyro-std()-Y
-
-60.  fBodyGyro-std()-Z
-
-61.  fBodyAccMag-mean()
-
-62.  fBodyAccMag-std()
-
-63.  fBodyBodyAccJerkMag-mean()
-
-64.  fBodyBodyAccJerkMag-std()
-
-65.  fBodyBodyGyroMag-mean()
-
-66.  fBodyBodyGyroMag-std()
-
-67.  fBodyBodyGyroJerkMag-mean()
-
-68.  fBodyBodyGyroJerkMag-std()
+53 Columns
+
+1.	roll_belt
+2.	pitch_belt
+3.	yaw_belt
+4.	total_accel_belt
+5.	gyros_belt_x
+6.	gyros_belt_y
+7.	gyros_belt_z
+8.	accel_belt_x
+9.	accel_belt_y
+10.	accel_belt_z
+11.	magnet_belt_x
+12.	magnet_belt_y
+13.	magnet_belt_z
+14.	roll_arm
+15.	pitch_arm
+16.	yaw_arm
+17.	total_accel_arm
+18.	gyros_arm_x
+19.	gyros_arm_y
+20.	gyros_arm_z
+21.	accel_arm_x
+22.	accel_arm_y
+23.	accel_arm_z
+24.	magnet_arm_x
+25.	magnet_arm_y
+26.	magnet_arm_z
+27.	roll_dumbbell
+28.	pitch_dumbbell
+29.	yaw_dumbbell
+30.	total_accel_dumbbell
+31.	gyros_dumbbell_x
+32.	gyros_dumbbell_y
+33.	gyros_dumbbell_z
+34.	accel_dumbbell_x
+35.	accel_dumbbell_y
+36.	accel_dumbbell_z
+37.	magnet_dumbbell_x
+38.	magnet_dumbbell_y
+39.	magnet_dumbbell_z
+40.	roll_forearm
+41.	pitch_forearm
+42.	yaw_forearm
+43.	total_accel_forearm
+44.	gyros_forearm_x
+45.	gyros_forearm_y
+46.	gyros_forearm_z
+47.	accel_forearm_x
+48.	accel_forearm_y
+49.	accel_forearm_z
+50.	magnet_forearm_x
+51.	magnet_forearm_y
+52.	magnet_forearm_z
+53.	classe
