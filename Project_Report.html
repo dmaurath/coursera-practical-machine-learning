@@ -193,7 +193,7 @@ which(M &gt; 0.8, arr.ind=T)</code></pre>
 <h3>Random Forests Model</h3>
 <p>I chose Random Forests for my model because of its accuracy. As noted in Week 3’s Random Forest’s lecture, slide 10, “Random Forests are usually one of the top two performing algorithms.”</p>
 <p>Admittedly, there are shortcomings to this model, but I addressed each. Random Forests is slow, so I used the “doParalell” package to take advantage of my computer’s 4 cores. Interpretability was not required for this assignment, only predictive accuracy. I used k-fold cross-validation during model training to address overfitting, as was suggested in lecture.</p>
-<p>I trained the model on the training dataset using PCA to weigh and combine predictors, and a three-fold cross validation. Then tested it using the testing dataset, and generated a confusion matrix to assess the model.</p>
+<p>I trained the model on the training dataset using PCA to weigh and combine predictors, and 10 times cross validation. Then tested it using the testing dataset, and generated a confusion matrix to assess the model.</p>
 <pre class="r"><code>modelfitRF &lt;- train(training$classe~., method = &quot;rf&quot;, preProcess=c(&quot;pca&quot;), trControl = trainControl(method = &quot;cv&quot;, number=10), data=training)</code></pre>
 <pre><code>## Loading required package: randomForest
 ## randomForest 4.6-10
